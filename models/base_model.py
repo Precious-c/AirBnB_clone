@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import json
 import uuid
 from datetime import datetime
+from __init__ import storage
 
 class BaseModel:
     """Base model of class """
@@ -19,6 +21,8 @@ class BaseModel:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
+            storage.new(self)
+
 
     def __str__(self):
         """Returns class attributes in string format"""
@@ -27,6 +31,7 @@ class BaseModel:
     def save(self):
         """Updates the updated_at attribute with current time"""
         self.updated_at = datetime.now()
+        storage.save(self)
 
     def to_dict(self):
         """Returns a dictionary representation of class attributes"""
@@ -36,3 +41,22 @@ class BaseModel:
         new_dict["updated_at"] = self.updated_at.isoformat()
         return new_dict
 
+    def save_json_to_file(self, filename):
+        '''Saves instance of BaseModel to a file'''
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(self.to_dict(), f)
+
+    def save_json_to_file2(self, filename):
+        '''Saves instance of BaseModel to a file'''
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(str(self.to_dict()))
+
+    def load_json_from_file2(filename):
+        '''loads an instance of BaseModel from a file'''
+        with open(filename, "r", encoding="utf-8") as f:
+            return f.read()
+
+    def load_json_from_file(filename):
+        '''loads an instance of BaseModel from a file'''
+        with open(filename, "r", encoding="utf-8") as f:
+            return json.load(f)
