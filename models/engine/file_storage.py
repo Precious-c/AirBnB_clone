@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import json
-#from models.base_model import BaseModel
+from models.base_model import BaseModel
 
 
 class FileStorage():
@@ -23,14 +23,20 @@ class FileStorage():
          no exception should be raised)'''
         try:
             with open(FileStorage.__file_path, 'r', encoding='utf-8') as f:
-                return (json.load(f))
+                obj_dict = json.load(f)
+            for obj_item in obj_dict.values():
+                class_name = obj_item["__class__"]
+                del obj_item["__class__"]
+                self.new(eval(class_name)(**obj_item))
         except FileNotFoundError:
-            return
+            pass
 
     def save(self):
-        '''method of storage
-        __init__(self, *args, **kwargs):
-        if it’s a new instance (not from a dictionary representation),
-         add a call to the method new(self) on storage'''
-        with open(FileStorage.__file_path, 'w', encoding='utf-8') as f:
-            json.dump(FileStorage.__objects, f)
+        """ serializes __objects to the JSON file in __path"""
+
+        j_objects = {}
+        for key in self.__objects:
+            j_objects[key] = self.__objects[key].to_dict()
+        # Convert the dictionary into json and save in __filepath.
+        with open(self.__file_path, 'w') as f:
+            json.dump(j_objects, f)

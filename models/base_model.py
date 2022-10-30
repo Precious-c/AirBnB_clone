@@ -3,7 +3,7 @@
 import json
 import uuid
 from datetime import datetime
-from __init__ import storage
+from models.__init__ import storage
 
 class BaseModel:
     """Base model of class """
@@ -11,10 +11,12 @@ class BaseModel:
         """Initializee instance attributes id, created_at, and updated_at"""
         if kwargs:
             for key, value in kwargs.items():
-                if key == "created_at" or key == "updated_at":
-                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
                 if key == "__class__":
                     continue
+
+                if key == "created_at" or key == "updated_at":
+                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+
                 setattr(self, key, value)
 
         else:        
@@ -29,13 +31,13 @@ class BaseModel:
         return f"[{self.__class__.__name__}] ({self.id}) {self.__dict__}"
 
     def save(self):
-        """Updates the updated_at attribute with current time"""
+        """Updates the updated_at attribute with current time and saves object"""
         self.updated_at = datetime.now()
-        storage.save(self)
+        storage.save()
 
     def to_dict(self):
-        """Returns a dictionary representation of class attributes"""
-        new_dict = self.__dict__
+        """Returns a dictionary representation of  attributes"""
+        new_dict = self.__dict__.copy()
         new_dict["__class__"] = self.__class__.__name__
         new_dict["created_at"] = self.created_at.isoformat()
         new_dict["updated_at"] = self.updated_at.isoformat()
@@ -46,15 +48,6 @@ class BaseModel:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f)
 
-    def save_json_to_file2(self, filename):
-        '''Saves instance of BaseModel to a file'''
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(str(self.to_dict()))
-
-    def load_json_from_file2(filename):
-        '''loads an instance of BaseModel from a file'''
-        with open(filename, "r", encoding="utf-8") as f:
-            return f.read()
 
     def load_json_from_file(filename):
         '''loads an instance of BaseModel from a file'''
